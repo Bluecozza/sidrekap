@@ -11,7 +11,6 @@
 if (!defined('ABSPATH')) {
     exit; // Mencegah akses langsung ke file
 }
-define('SIDREKAP_CRUD_TABLE', $wpdb->prefix . 'sidrekap');
 // 1️⃣ Load File yang Diperlukan
 include_once plugin_dir_path(__FILE__) . 'includes/database.php';
 include_once plugin_dir_path(__FILE__) . 'includes/admin.php';
@@ -20,6 +19,7 @@ include_once plugin_dir_path(__FILE__) . 'includes/functions.php';
 // 2️⃣ Fungsi Saat Plugin Diaktifkan
 function sidrekap_activate() {
     sidrekap_create_table(); // Buat tabel database
+	sidrekap_create_modules_table();
 }
 register_activation_hook(__FILE__, 'sidrekap_activate');
 
@@ -46,3 +46,19 @@ function sidrekap_load_modules() {
     }
 }
 add_action('plugins_loaded', 'sidrekap_load_modules');
+
+
+function sidrekap_create_modules_table() {
+	global $wpdb;
+	define('SIDREKAP_MODULES_TABLE', $wpdb->prefix . 'sidrekap_modules');
+    $table_name = SIDREKAP_MODULES_TABLE;
+    $charset_collate = $wpdb->get_charset_collate();
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        module_name VARCHAR(255) NOT NULL,
+        is_active BOOLEAN DEFAULT 0
+    ) $charset_collate;";
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta($sql);
+}
+
